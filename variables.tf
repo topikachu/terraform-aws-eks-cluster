@@ -299,3 +299,13 @@ variable "dummy_kubeapi_server" {
     via `kubeconfig_path` and set `kubeconfig_path_enabled` to `true`.
     EOT
 }
+
+variable "cluster_encryption_config_create_kms_key" {
+  type        = bool
+  default     = true
+  description = <<-EOT
+    If this is 'true' and cluster_encryption_config_kms_key_id is empty, creaet an kms key.
+    Otherwise, no key is created by this moudle.
+    This parameter is to avoid terraform "Invalid count argument" that a kms key is created explicitly together with this moudle.
+    EOT
+}

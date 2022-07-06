@@ -6,7 +6,7 @@ locals {
   cluster_encryption_config = {
     resources = var.cluster_encryption_config_resources
 
-    provider_key_arn = local.enabled && var.cluster_encryption_config_enabled && var.cluster_encryption_config_kms_key_id == "" ? (
+    provider_key_arn = local.enabled && var.cluster_encryption_config_enabled && var.cluster_encryption_config_create_kms_key && var.cluster_encryption_config_kms_key_id == "" ? (
       join("", aws_kms_key.cluster.*.arn)
     ) : var.cluster_encryption_config_kms_key_id
   }
@@ -36,7 +36,7 @@ resource "aws_cloudwatch_log_group" "default" {
 }
 
 resource "aws_kms_key" "cluster" {
-  count                   = local.enabled && var.cluster_encryption_config_enabled && var.cluster_encryption_config_kms_key_id == "" ? 1 : 0
+  count                   = local.enabled && var.cluster_encryption_config_enabled && var.cluster_encryption_config_create_kms_key && var.cluster_encryption_config_kms_key_id == "" ? 1 : 0
   description             = "EKS Cluster ${module.label.id} Encryption Config KMS Key"
   enable_key_rotation     = var.cluster_encryption_config_kms_key_enable_key_rotation
   deletion_window_in_days = var.cluster_encryption_config_kms_key_deletion_window_in_days
@@ -45,7 +45,7 @@ resource "aws_kms_key" "cluster" {
 }
 
 resource "aws_kms_alias" "cluster" {
-  count         = local.enabled && var.cluster_encryption_config_enabled && var.cluster_encryption_config_kms_key_id == "" ? 1 : 0
+  count         = local.enabled && var.cluster_encryption_config_enabled && var.cluster_encryption_config_create_kms_key && var.cluster_encryption_config_kms_key_id == "" ? 1 : 0
   name          = format("alias/%v", module.label.id)
   target_key_id = join("", aws_kms_key.cluster.*.key_id)
 }
